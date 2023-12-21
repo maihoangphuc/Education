@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Liên hệ";
+    ViewData["Active"] = "4";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- ======= Breadcrumbs ======= -->
+<div class="breadcrumbs" data-aos="fade-in">
+    <div class="container">
+        <h2>@ViewData["Title"]</h2>
+        <p>Thông tin chung và liên hệ ngay với chúng tôi</p>
+    </div>
+</div>
+<!-- End Breadcrumbs -->
+
+<!-- ======= Maps ======= -->
+<div data-aos="fade-up">
+    <iframe style="border:0; width: 100%; height: 350px;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.0560810445427!2d106.85958327387321!3d10.959136455799388!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174dc2b77c52ffd%3A0xaf06bd4feb958f32!2zNCBMw6ogUXXDvSDEkMO0biwgVMOibiBIaeG7h3AsIFRow6BuaCBwaOG7kSBCacOqbiBIw7JhLCDEkOG7k25nIE5haSwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1702996132477!5m2!1svi!2s" frameborder="0" allowfullscreen></iframe>
+</div>
+<!-- End Maps -->
+
+<!-- ======= Contact Section ======= -->
+<section id="contact" class="contact">
+    <div class="container" data-aos="fade-up">
+        <div class="row mt-5">
+            <div class="col-lg-4">
+                <div class="info">
+                    <div class="address">
+                        <i class="bi bi-geo-alt"></i>
+                        <h4>Địa chỉ:</h4>
+                        <p>
+                            4 Lê Quý Đôn, Kp3, Thành phố Biên Hòa, Đồng Nai
+                        </p>
+                    </div>
+                    <div class="email">
+                        <i class="bi bi-envelope"></i>
+                        <h4>Email:</h4>
+                        <p>lienhe@dnpu.edu.vn</p>
+                    </div>
+                    <div class="phone">
+                        <i class="bi bi-phone"></i>
+                        <h4>Số điện thoại:</h4>
+                        <p>0251 3824 684</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 mt-5 mt-lg-0">
+                <form action="forms/contact.php" method="post" role="form" class="php-email-form">
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <input type="text" name="name" class="form-control" id="name" placeholder="Nhập tên" required>
+                        </div>
+                        <div class="col-md-6 form-group mt-3 mt-md-0">
+                            <input type="email" class="form-control" name="email" id="email" placeholder="Nhập Email" required>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <input type="text" class="form-control" name="subject" id="subject" placeholder="Nhập tiêu đề" required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <textarea class="form-control" name="message" rows="5" placeholder="Nhập nội dung" required></textarea>
+                    </div>
+                    <div class="my-3">
+                        <div class="loading">Loading</div>
+                        <div class="error-message"></div>
+                        <div class="sent-message">Your message has been sent. Thank you!</div>
+                    </div>
+                    <div class="text-center"><button type="submit">Gửi</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Contact Section -->
