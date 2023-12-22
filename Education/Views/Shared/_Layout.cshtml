@@ -34,7 +34,7 @@
     <!-- Header -->
     <header id="header" class="fixed-top">
         <div class="container d-flex align-items-center">
-            <h1 class="logo me-auto"><a href="index.html">Edu</a></h1>
+            <h1 class="logo me-auto"><a asp-controller="home" asp-action="index">Edu</a></h1>
             <nav id="navbar" class="navbar order-last order-lg-0">
                 <ul>
                     <li><a class="@Html.Raw(ViewData["Active"] == "1" ? "active" : "")" asp-controller="home" asp-action="index">Trang chủ</a></li>
@@ -121,7 +121,7 @@
                             Cập nhập ngay nhũng tin tức mới nhất về chúng tôi
                         </p>
                         <form action="" method="post">
-                            <input type="email" name="email" /><input type="submit" value="Đăng ký" />
+                            <input type="email" name="email" placeholder="Nhập email của bạn" /><input type="submit" value="Đăng ký" />
                         </form>
                     </div>
                 </div>

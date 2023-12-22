@@ -18,7 +18,7 @@ public class NewsController : Controller
     public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText)
     {
         int pageNumber = page ?? 1;
-        int pageSize = record ?? 4;
+        int pageSize = record ?? 6;
         int status = sequenceStatus ?? 1;
         string search = searchText ?? "";
 
