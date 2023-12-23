@@ -6,6 +6,10 @@ namespace Education.Areas.Admin.Controllers
     [Area("Admin")]
     public class AuthController : Controller
     {
+        private static readonly string Username = "admin";
+        private static readonly string Password = "12345678";
+
+        [HttpGet]
         public IActionResult SignIn()
         {
             return View();
@@ -13,18 +17,19 @@ namespace Education.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SignIn(LoginModel model)
+        public IActionResult SignIn(AccountModel model)
         {
             if (ModelState.IsValid)
             {
-                if (model.Username.ToLower() == "admin" && model.Password.ToLower() == "12345678")
+                if (model.Username.ToLower() == Username && model.Password.ToLower() == Password)
                 {
                     HttpContext.Session.SetString("user", "admin");
                     return RedirectToAction("index", "home", new { area = "admin" });
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Tên người dùng hoặc mật khẩu không hợp lệ");
+                    // Nếu thông tin đăng nhập không đúng, thêm thông báo lỗi vào ModelState
+                    ModelState.AddModelError("Username", "Tên người dùng hoặc mật khẩu không đúng.");
                 }
             }
 
@@ -34,7 +39,7 @@ namespace Education.Areas.Admin.Controllers
         public IActionResult SignOut()
         {
             HttpContext.Session.Remove("user");
-            return RedirectToAction("signin");
+            return RedirectToAction("signin", "auth", new { area = "admin" });
         }
     }
 }
