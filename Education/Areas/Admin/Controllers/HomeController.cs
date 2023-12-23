@@ -2,7 +2,8 @@
 
 namespace Education.Areas.Admin.Controllers
 {
-    public class AdminHomeController : Controller
+    [Area("Admin")]
+    public class HomeController : Controller
     {
         public IActionResult Index()
         {

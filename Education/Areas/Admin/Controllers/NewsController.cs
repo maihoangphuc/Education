@@ -5,13 +5,14 @@ using X.PagedList;
 
 namespace Education.Areas.Admin.Controllers
 {
-    public class AdminNewsController : Controller
+    [Area("Admin")]
+    public class NewsController : Controller
     {
-        private readonly ILogger<AdminNewsController> _logger;
+        private readonly ILogger<NewsController> _logger;
         private readonly HttpClient _apiClient;
         private readonly string _baseUri = "https://api-intern-test.h2aits.com/";
 
-        public AdminNewsController(ILogger<AdminNewsController> logger)
+        public NewsController(ILogger<NewsController> logger)
         {
             _logger = logger;
             _apiClient = new HttpClient();
@@ -59,7 +60,7 @@ namespace Education.Areas.Admin.Controllers
             return View();
         }
 
-        public IActionResult Create()
+        public IActionResult Add()
         {
             return View();
         }

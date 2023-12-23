@@ -24,7 +24,8 @@
     <link href="~/css/style-admin.css" rel="stylesheet" />
 </head>
 <body>
-    <!-- Container -->
+
+    <!-- Container scroller -->
     <div class="container-scroller">
         <!-- Navbar -->
         <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
@@ -120,7 +121,7 @@
                 </button>
             </div>
         </nav>
-
+        <!-- Navbar ends -->
         <!-- Body -->
         <div class="container-fluid page-body-wrapper">
             <!-- Settings panel -->
@@ -274,12 +275,12 @@
                     <!-- chat tab ends -->
                 </div>
             </div>
-
+            <!-- Settings panel ends -->
             <!-- Sidebar -->
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item @Html.Raw(ViewData["Active"] == "1" ? "active" : "")">
-                        <a class="nav-link" asp-area="admin" asp-controller="adminHome" asp-action="index">
+                        <a class="nav-link" asp-area="admin" asp-controller="home" asp-action="index">
                             <i class="icon-grid menu-icon"></i>
                             <span class="menu-title">Trang chủ</span>
                         </a>
@@ -293,20 +294,20 @@
                         <div class="collapse" id="news">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="admin" asp-controller="adminNews" asp-action="index">Tin tức</a>
+                                    <a class="nav-link" asp-area="admin" asp-controller="news" asp-action="index">Danh sách tin tức</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="admin" asp-controller="adminNews" asp-action="create">Thêm</a>
+                                    <a class="nav-link" asp-area="admin" asp-controller="news" asp-action="add">Thêm tin tức</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="admin" asp-controller="adminNews" asp-action="edit">Sửa</a>
+                                    <a class="nav-link" asp-area="admin" asp-controller="news" asp-action="edit">Sửa tin tức</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
                 </ul>
             </nav>
-
+            <!-- Sidebar ends -->
             <!-- Main -->
             <div class="main-panel">
                 @RenderBody()
@@ -319,10 +320,13 @@
                         </span>
                     </div>
                 </footer>
+                <!-- Footer ends -->
             </div>
+            <!-- Main ends -->
         </div>
+        <!-- Body ends -->
     </div>
-
+    <!-- Container scroller ends -->
     <!-- Template Main JS File -->
     <script src="~/js/vendor.bundle.base.js"></script>
     <script src="~/lib/chart.js/chart.min.js"></script>
