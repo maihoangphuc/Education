@@ -68,6 +68,8 @@
 
 	<ItemGroup>
 	  <None Include="wwwroot\fonts\themify.svg" />
+	  <None Include="wwwroot\lib\base\bootstrap.min.js.map" />
+	  <None Include="wwwroot\lib\base\vendor.bundle.base.js" />
 	  <None Include="wwwroot\lib\chart.js\Chart.min.js" />
 	  <None Include="wwwroot\lib\datatables.net-bs4\dataTables.bootstrap4.js" />
 	  <None Include="wwwroot\lib\feather\fonts\feather-webfont.svg" />

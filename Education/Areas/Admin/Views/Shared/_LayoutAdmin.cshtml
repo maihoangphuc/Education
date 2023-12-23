@@ -101,7 +101,7 @@
                     </li>
                     <li class="nav-item nav-profile dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-                            <img src="~/img/trainers/trainer-1.jpg" alt="profile" />
+                            <img src="images/faces/face28.jpg" alt="profile" />
                         </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
                             <a class="dropdown-item">
@@ -278,13 +278,13 @@
             <!-- Sidebar -->
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <ul class="nav">
-                    <li class="nav-item">
+                    <li class="nav-item @Html.Raw(ViewData["Active"] == "1" ? "active" : "")">
                         <a class="nav-link" asp-area="admin" asp-controller="adminHome" asp-action="index">
                             <i class="icon-grid menu-icon"></i>
                             <span class="menu-title">Trang chủ</span>
                         </a>
                     </li>
-                    <li class="nav-item @Html.Raw(ViewData["Active"] == "Tin tức" ? "active" : "")">
+                    <li class="nav-item @Html.Raw(ViewData["Active"] == "2" ? "active" : "")">
                         <a class="nav-link" data-toggle="collapse" href="#news" aria-expanded="false" aria-controls="news">
                             <i class="icon-head menu-icon"></i>
                             <span class="menu-title">Tin tức</span>
@@ -293,18 +293,17 @@
                         <div class="collapse" id="news">
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item">
-                                    <a class="nav-link">Danh sách tin tức</a>
+                                    <a class="nav-link" asp-area="admin" asp-controller="adminNews" asp-action="index">Tin tức</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link">Thêm tin tức</a>
+                                    <a class="nav-link" asp-area="admin" asp-controller="adminNews" asp-action="create">Thêm</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link">Sửa tin tức</a>
+                                    <a class="nav-link" asp-area="admin" asp-controller="adminNews" asp-action="edit">Sửa</a>
                                 </li>
                             </ul>
                         </div>
                     </li>
-
                 </ul>
             </nav>
 

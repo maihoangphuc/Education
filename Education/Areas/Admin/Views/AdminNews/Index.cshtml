@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Tin tức";
-    ViewData["Active"] = "Tin tức";
+    ViewData["Active"] = "2";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -23,7 +23,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-striped">
+                                <table class="table">
                                     <thead>
                                         <tr>
                                             <th>
@@ -52,37 +52,40 @@
                                     <tbody>
                                         @foreach (var newsItem in Model)
                                         {
-                                            <tr>
-                                                <td class="py-1">
-                                                    @stt
-                                                </td>
-                                                <td class="py-1">
-                                                    <img src="@(newsItem.ImageObj != null && newsItem.ImageObj.RelativeUrl != null ?
+                                            if (newsItem != null)
+                                            {
+                                                <tr>
+                                                    <td class="py-1">
+                                                        @stt
+                                                    </td>
+                                                    <td class="py-1">
+                                                        <img src="@(newsItem.ImageObj != null && newsItem.ImageObj.RelativeUrl != null ?
                                                          newsItem.ImageObj.RelativeUrl : "~/img/background/background-blog.jpg")"
-                                                         alt="image-news" />
-                                                </td>
-                                                <td class="limited-text">
-                                                    @newsItem.Name
-                                                </td>
-                                                <td>
-                                                    @(newsItem.IsHot ? @Html.Raw("<label class='badge badge-danger'>Hot</label>") : "Không")
-                                                </td>
-                                                <td class="limited-text">
-                                                    @newsItem.Description
-                                                </td>
-                                                <td>
-                                                    @newsItem.PublishedAt
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-inverse-dark btn-icon">
-                                                        <i class="ti-pencil icon-sm"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-danger btn-icon">
-                                                        <i class="ti-trash icon-sm"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            stt++;
+                                                             alt="image-news" />
+                                                    </td>
+                                                    <td class="limited-text">
+                                                        @newsItem.Name
+                                                    </td>
+                                                    <td>
+                                                        @(newsItem.IsHot ? @Html.Raw("<label class='badge badge-danger'>Hot</label>") : "Không")
+                                                    </td>
+                                                    <td class="limited-text">
+                                                        @newsItem.Description
+                                                    </td>
+                                                    <td>
+                                                        @newsItem.PublishedAt
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-inverse-dark btn-icon">
+                                                            <i class="ti-pencil icon-sm"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger btn-icon">
+                                                            <i class="ti-trash icon-sm"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                stt++;
+                                            }
                                         }
                                     </tbody>
                                 </table>
@@ -117,7 +120,6 @@
                         </div>
                     </div>
                 }
-
             </div>
         </div>
     </div>

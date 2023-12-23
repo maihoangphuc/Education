@@ -45,9 +45,9 @@ namespace Education.Areas.Admin.Controllers
                     var newsListModel = JsonConvert.DeserializeObject<NewsListModel>(apiResponse);
 
                     // Xử lý kết quả API ở đây
-                    var newsLists = newsListModel.Data;
+                    var newsLists = newsListModel?.Data;
 
-                    return View(newsLists.ToList().ToPagedList(pageNumber, pageSize));
+                    return View(newsLists?.ToList().ToPagedList(pageNumber, pageSize));
                 }
             }
             catch (HttpRequestException e)
