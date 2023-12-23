@@ -7,6 +7,14 @@ namespace Education.Areas.Admin.Controllers
     {
         public IActionResult Index()
         {
+            // Check if the user is logged in
+            if (HttpContext.Session.GetString("user") == null)
+            {
+                // User is not logged in, redirect to the sign-in page
+                return RedirectToAction("signin", "auth", new { area = "admin" });
+            }
+
+            // User is logged in, continue to the home page
             return View();
         }
     }
