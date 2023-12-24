@@ -1759,3 +1759,37 @@ section {
         font-size: 16px;
     }
 }
+
+/*--------------------------------------------------------------
+# CSS cho Skeleton Loading
+--------------------------------------------------------------*/
+
+.skeleton-loading {
+    background-color: #f2f2f2;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-image {
+    height: 200px; /* Điều chỉnh chiều cao ảnh */
+    background-color: #ddd;
+}
+
+.skeleton-text {
+    height: 20px; /* Điều chỉnh chiều cao văn bản */
+    background-color: #ddd;
+    margin-top: 10px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}
