@@ -1,0 +1,40 @@
+﻿@model Education.Models.NewsItemModel
+
+@{
+    ViewData["Title"] = "cc";
+    ViewData["Active"] = "3";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (Model == null)
+{
+    <h1>BÓT TAY</h1>
+}
+else
+{
+    <section class="blog_area single-post-area section-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 posts-list">
+                    <div class="single-post">
+                        <div class="feature-img">
+                            <img class="img-fluid" src="@(Model.ImageObj != null && Model.ImageObj.RelativeUrl != null ?
+                                Model.ImageObj.RelativeUrl : "~/img/background/background-blog.jpg")" alt="" />
+                        </div>
+                        <div class="blog_details">
+                            <h2>@Model.Name</h2>
+                            <p>@Model.Description</p>
+                            <!-- Add other content as needed -->
+                        </div>
+                    </div>
+                    <!-- ... (other content) ... -->
+                </div>
+                <div class="col-lg-4">
+                    <div class="blog_right_sidebar">
+                        <!-- Sidebar content goes here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}

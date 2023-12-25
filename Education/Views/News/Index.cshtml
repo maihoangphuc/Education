@@ -15,35 +15,13 @@
     </div>
 </div>
 <!-- End Breadcrumbs -->
+
 <!-- ======= News Section ======= -->
 <section id="news" class="news">
     <div class="container">
         <div class="row gy-5">
             <div class="col-lg-8">
                 <div class="row g-3">
-                    @*    @if (Model != null && Model.Any())
-                    {
-                    @foreach (var newsItem in Model)
-                    {
-                    <div class="col-lg-6">
-                    <div class="blog-item position-relative overflow-hidden rounded">
-                    <img class="img-fluid"
-                    src="@(newsItem.ImageObj != null && newsItem.ImageObj.RelativeUrl != null ?
-                    newsItem.ImageObj.RelativeUrl : "~/img/background/background-blog.jpg")"
-                    alt="" />
-                    <a class="blog-overlay text-decoration-none" href="">
-                    <h5 class="text-white mb-3">@newsItem.Name</h5>
-                    <p class="m-0">@newsItem.PublishedAt</p>
-                    </a>
-                    </div>
-                    </div>
-                    }
-                    }
-                    else
-                    {
-                    <p class="text-center">Không có dữ liệu</p>
-                    } *@
-
                     @if (Model == null)
                     {
                         <!-- Hiển thị Skeleton Loading nếu Model chưa được tải -->
@@ -66,9 +44,9 @@
                                 <div class="blog-item position-relative overflow-hidden rounded">
                                     <img class="img-fluid"
                                          src="@(newsItem.ImageObj != null && newsItem.ImageObj.RelativeUrl != null ?
-                            newsItem.ImageObj.RelativeUrl : "~/img/background/background-blog.jpg")"
+                                               newsItem.ImageObj.RelativeUrl : "~/img/background/background-blog.jpg")"
                                          alt="" />
-                                    <a class="blog-overlay text-decoration-none" href="">
+                                    <a class="blog-overlay text-decoration-none" href="@Url.Action("detail", "news", new { id = newsItem.Id })">
                                         <h5 class="text-white mb-3">@newsItem.Name</h5>
                                         <p class="m-0">@newsItem.PublishedAt</p>
                                     </a>

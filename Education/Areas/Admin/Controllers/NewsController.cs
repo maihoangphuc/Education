@@ -1,6 +1,6 @@
-﻿using Education.Models;
+﻿using global::Education.Models;
+using global::Education.Services.Api;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using X.PagedList;
 
 namespace Education.Areas.Admin.Controllers
@@ -9,19 +9,28 @@ namespace Education.Areas.Admin.Controllers
     public class NewsController : Controller
     {
         private readonly ILogger<NewsController> _logger;
-        private readonly HttpClient _apiClient;
-        private readonly string _baseUri = "https://api-intern-test.h2aits.com/";
+        private readonly IApiService _apiService;
 
-        public NewsController(ILogger<NewsController> logger)
+        public NewsController(ILogger<NewsController> logger, IApiService apiService)
         {
-            _logger = logger;
-            _apiClient = new HttpClient();
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
         }
 
+        [HttpGet]
         public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText)
         {
+            var listNews = await GetAllNews(page, record, sequenceStatus, searchText);
+            if (listNews != null)
+                return View(listNews);
+            return View(null);
+        }
+
+        [HttpGet]
+        public async Task<IPagedList<NewsItemModel>> GetAllNews(int? page, int? record, int? sequenceStatus, string? searchText)
+        {
             int pageNumber = page ?? 1;
-            int pageSize = record ?? 5;
+            int pageSize = record ?? 6;
             int status = sequenceStatus ?? 1;
             string search = searchText ?? "";
 
@@ -32,38 +41,26 @@ namespace Education.Areas.Admin.Controllers
 
             try
             {
-                // Gọi API và xử lý kết quả
-                string apiUrl = $"{_baseUri}News/GetListByPaging?sequenceStatus={status}&?record={pageSize}&?page={pageNumber}&searchText={search}";
-                HttpResponseMessage response = await _apiClient.GetAsync(apiUrl);
+                var newsEndpoint = $"/News/GetListByPaging?sequenceStatus={status}&record={pageSize}&page={pageNumber}&searchText={search}";
+                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
 
-                response.EnsureSuccessStatusCode();
+                var newsListModel = await _apiService.GetAsync<NewsListModel<List<NewsItemModel>>>(fullNewsApiUrl);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    string apiResponse = await response.Content.ReadAsStringAsync();
-
-                    // Model
-                    var newsListModel = JsonConvert.DeserializeObject<NewsListModel>(apiResponse);
-
-                    // Xử lý kết quả API ở đây
-                    var newsLists = newsListModel?.Data;
-
-                    return View(newsLists?.ToList().ToPagedList(pageNumber, pageSize));
-                }
+                var pagedList = newsListModel.Data.ToPagedList(pageNumber, pageSize);
+                return pagedList;
             }
             catch (HttpRequestException e)
             {
-                // Xử lý lỗi gọi API
-                ViewBag.Error = "Error calling API: " + e.Message;
+                _logger.LogError("Error calling API: {Message}", e.Message);
+                throw new Exception("Error calling API: " + e.Message);
             }
-
-            return View();
         }
 
         public IActionResult Add()
         {
             return View();
         }
+
         public IActionResult Edit()
         {
             return View();
@@ -74,62 +71,3 @@ namespace Education.Areas.Admin.Controllers
 
 
 
-
-
-/*
-
-public class NewsController : Controller
-{
-    private readonly ILogger<NewsController> _logger;
-    private readonly HttpClient _apiClient;
-    private readonly string _baseUri = "https://api-intern-test.h2aits.com/";
-
-    public NewsController(ILogger<NewsController> logger)
-    {
-        _logger = logger;
-        _apiClient = new HttpClient();
-    }
-
-    public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText)
-    {
-        int pageNumber = page ?? 1;
-        int pageSize = record ?? 4;
-        int status = sequenceStatus ?? 1;
-        string search = searchText ?? "";
-
-        if (page < 1)
-        {
-            pageNumber = 1;
-        }
-
-        try
-        {
-            // Gọi API và xử lý kết quả
-            string apiUrl = $"{_baseUri}News/GetListByPaging?sequenceStatus={status}&?record={pageSize}&?page={pageNumber}&searchText={search}";
-            HttpResponseMessage response = await _apiClient.GetAsync(apiUrl);
-
-            response.EnsureSuccessStatusCode();
-
-            if (response.IsSuccessStatusCode)
-            {
-                string apiResponse = await response.Content.ReadAsStringAsync();
-
-                // Model
-                var newsListModel = JsonConvert.DeserializeObject<NewsListModel>(apiResponse);
-
-                // Xử lý kết quả API ở đây
-                var newsLists = newsListModel.Data;
-
-                return View(newsLists.ToList().ToPagedList(pageNumber, pageSize));
-            }
-        }
-        catch (HttpRequestException e)
-        {
-            // Xử lý lỗi gọi API
-            ViewBag.Error = "Error calling API: " + e.Message;
-        }
-
-        return View();
-    }
-}
-*/

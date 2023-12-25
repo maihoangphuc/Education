@@ -1,9 +1,56 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Thêm tin tức";
     ViewData["Active"] = "2";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-md-12 grid-margin">
+            <div class="row">
+                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                    <h3 class="font-weight-bold">@ViewData["Title"]</h3>
+                    <h6 class="font-weight-normal mb-4"><span class="text-primary">Tạo bài đăng ngay</span></h6>
+                </div>
+                <div class="col-12 grid-margin">
+                    <div class="card">
+                        <div class="card-body">
+                            <form class="">
+                                <div class="row mt-5">
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Tên bài viết</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" placeholder="Nhập tên bài viết" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Mô tả</label>
+                                            <div class="col-sm-10">
+                                                <textarea class="form-control" placeholder="Nhập mô tả bài viết"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Chọn trường</label>
+                                            <div class="col-sm-9">
+                                                <select class="form-control">
+                                                    <option>Male</option>
+                                                    <option>Female</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>  
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 

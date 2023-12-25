@@ -7,6 +7,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="wwwroot\lib\base\**" />
+	  <Content Remove="wwwroot\lib\base\**" />
+	  <EmbeddedResource Remove="wwwroot\lib\base\**" />
+	  <None Remove="wwwroot\lib\base\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Areas\Admin\Controllers\NewsController.cs~RF169ada43.TMP" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
@@ -69,8 +80,6 @@
 
 	<ItemGroup>
 	  <None Include="wwwroot\fonts\themify.svg" />
-	  <None Include="wwwroot\lib\base\bootstrap.min.js.map" />
-	  <None Include="wwwroot\lib\base\vendor.bundle.base.js" />
 	  <None Include="wwwroot\lib\chart.js\Chart.min.js" />
 	  <None Include="wwwroot\lib\datatables.net-bs4\dataTables.bootstrap4.js" />
 	  <None Include="wwwroot\lib\feather\fonts\feather-webfont.svg" />
