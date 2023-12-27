@@ -86,8 +86,4 @@
 	  <None Include="wwwroot\lib\ti-icons\fonts\themify.svg" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Models\NewFolder\" />
-	</ItemGroup>
-
 </Project>

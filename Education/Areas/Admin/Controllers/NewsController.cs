@@ -57,9 +57,93 @@ namespace Education.Areas.Admin.Controllers
             }
         }
 
-        public IActionResult Add()
+        [HttpGet]
+        public async Task<ActionResult> Add()
         {
-            return View();
+            try
+            {
+                var schoolList = await GetAllSchool();
+                var newsCategoryList = await GetAllNewsCategory();
+
+                if (schoolList != null && newsCategoryList != null)
+                {
+                    ViewBag.SchoolList = schoolList;
+                    ViewBag.NewsCategoryList = newsCategoryList;
+
+                    return View();
+                }
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error in Add action: {Message}", ex.Message);
+                throw;
+            }
+        }
+
+        [HttpGet]
+        public async Task<List<SchoolItemModel>> GetAllSchool()
+        {
+            int status = 1;
+
+            try
+            {
+                var schoolEndpoint = $"/School/GetListByPaging?SequenceStatus={status}";
+                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{schoolEndpoint}";
+
+                var schoolList = await _apiService.GetAsync<List<SchoolItemModel>>(fullNewsApiUrl);
+                return schoolList;
+            }
+            catch (HttpRequestException e)
+            {
+                _logger.LogError("Error calling API: {Message}", e.Message);
+                throw new Exception("Error calling API: " + e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<List<NewsItemCategoryModel>> GetAllNewsCategory()
+        {
+            int status = 1;
+
+            try
+            {
+                var newsCategoryEndpoint = $"/NewsCategory/GetListByPaging?SequenceStatus={status}";
+                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
+
+                var newsCategoryList = await _apiService.GetAsync<List<NewsItemCategoryModel>>(fullNewsApiUrl);
+                return newsCategoryList;
+            }
+            catch (HttpRequestException e)
+            {
+                _logger.LogError("Error calling API: {Message}", e.Message);
+                throw new Exception("Error calling API: " + e.Message);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task PostNews(NewsItemModel model)
+        {
+
+            var newsEndpoint = "News/Create";
+            var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
+
+            // Convert the news object to key-value pairs
+            var parameters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("NewsCategoryId", model.NewsCategoryId.ToString()),
+                new KeyValuePair<string, string>("SchoolId", model.SchoolId.ToString()),
+                new KeyValuePair<string, string>("Name", model.Name.ToString()),
+                new KeyValuePair<string, string>("Description", model.Description),
+                new KeyValuePair<string, string>("Status", model.Status),
+                new KeyValuePair<string, string>("IsHot", model.IsHot.ToString()),
+                new KeyValuePair<string, string>("MetaUrl", model.MetaUrl),
+                new KeyValuePair<string, string>("PublishedAt", model.PublishedAt.ToString("o")),
+            };
+
+            await _apiService.PostAsync(fullNewsApiUrl, parameters);
         }
 
         public IActionResult Edit()

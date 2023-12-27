@@ -29,6 +29,23 @@
             return await response.Content.ReadAsAsync<T>();
         }
 
+
+        public async Task PostAsync(string url, List<KeyValuePair<string, string>> parameters)
+        {
+            var httpRequestMessage = new HttpRequestMessage();
+            httpRequestMessage.Method = HttpMethod.Post;
+
+            httpRequestMessage.RequestUri = new Uri(url);
+
+            var content = new FormUrlEncodedContent(parameters);
+            httpRequestMessage.Content = content;
+
+            // Thực hiện Post
+            var response = await _httpClient.SendAsync(httpRequestMessage);
+            await response.Content.ReadAsStringAsync();
+        }
+
+
         public async Task<T> PutAsync<T>(string url, object data)
         {
             var response = await _httpClient.PutAsJsonAsync(url, data);
