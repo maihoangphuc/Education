@@ -18,20 +18,21 @@ namespace Education.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText)
+        public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
         {
-            var listNews = await GetAllNews(page, record, sequenceStatus, searchText);
+            var listNews = await GetAllNews(page, record, sequenceStatus, searchText, schoolId);
             if (listNews != null)
                 return View(listNews);
             return View(null);
         }
 
         [HttpGet]
-        public async Task<IPagedList<NewsItemModel>> GetAllNews(int? page, int? record, int? sequenceStatus, string? searchText)
+        public async Task<IPagedList<NewsItemModel>> GetAllNews(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
         {
             int pageNumber = page ?? 1;
             int pageSize = record ?? 6;
             int status = sequenceStatus ?? 1;
+            int school = schoolId ?? 9;
             string search = searchText ?? "";
 
             if (page < 1)
@@ -41,10 +42,10 @@ namespace Education.Areas.Admin.Controllers
 
             try
             {
-                var newsEndpoint = $"/News/GetListByPaging?sequenceStatus={status}&record={pageSize}&page={pageNumber}&searchText={search}";
+                var newsEndpoint = $"/News/GetListByPaging?sequenceStatus={status}&record={pageSize}&page={pageNumber}&searchText={search}&schoolId={school}";
                 var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
 
-                var newsListModel = await _apiService.GetAsync<NewsListModel<List<NewsItemModel>>>(fullNewsApiUrl);
+                var newsListModel = await _apiService.GetAsync<NewsModel<List<NewsItemModel>>>(fullNewsApiUrl);
 
                 var pagedList = newsListModel.Data.ToPagedList(pageNumber, pageSize);
                 return pagedList;

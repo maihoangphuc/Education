@@ -1,11 +1,8 @@
 namespace Education.Models
 {
-    public class NewsListModel<T>
+    public class NewsModel<T>
     {
-        public int Result { get; set; }
-        public long Time { get; set; }
-        public string DataDescription { get; set; }
-        public T Data { get; set; }
+        public T? Data { get; set; }
     }
 
     public class NewsItemModel
@@ -16,7 +13,7 @@ namespace Education.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public bool IsHot { get; set; }
-        public ImageObjModel ImageObj { get; set; }
+        public ImageObjModel? ImageObj { get; set; }
         public DateTime PublishedAt { get; set; }
     }
 
