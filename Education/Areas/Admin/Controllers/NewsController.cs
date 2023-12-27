@@ -92,7 +92,8 @@ namespace Education.Areas.Admin.Controllers
                 var schoolEndpoint = $"/School/GetListByPaging?SequenceStatus={status}";
                 var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{schoolEndpoint}";
 
-                var schoolList = await _apiService.GetAsync<List<SchoolItemModel>>(fullNewsApiUrl);
+                var res = await _apiService.GetAsync<SchoolModel<List<SchoolItemModel>>>(fullNewsApiUrl);
+                var schoolList = res?.Data?.ToList();
                 return schoolList;
             }
             catch (HttpRequestException e)
@@ -112,7 +113,8 @@ namespace Education.Areas.Admin.Controllers
                 var newsCategoryEndpoint = $"/NewsCategory/GetListByPaging?SequenceStatus={status}";
                 var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
 
-                var newsCategoryList = await _apiService.GetAsync<List<NewsItemCategoryModel>>(fullNewsApiUrl);
+                var res = await _apiService.GetAsync<NewsCategoryModel<List<NewsItemCategoryModel>>>(fullNewsApiUrl);
+                var newsCategoryList = res?.Data?.ToList();
                 return newsCategoryList;
             }
             catch (HttpRequestException e)
@@ -126,7 +128,6 @@ namespace Education.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task PostNews(NewsItemModel model)
         {
-
             var newsEndpoint = "News/Create";
             var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
 
@@ -136,10 +137,10 @@ namespace Education.Areas.Admin.Controllers
                 new KeyValuePair<string, string>("NewsCategoryId", model.NewsCategoryId.ToString()),
                 new KeyValuePair<string, string>("SchoolId", model.SchoolId.ToString()),
                 new KeyValuePair<string, string>("Name", model.Name.ToString()),
-                new KeyValuePair<string, string>("Description", model.Description),
-                new KeyValuePair<string, string>("Status", model.Status),
+                new KeyValuePair<string, string>("Description", model.Description.ToString()),
+                new KeyValuePair<string, string>("Status", model.Status.ToString()),
                 new KeyValuePair<string, string>("IsHot", model.IsHot.ToString()),
-                new KeyValuePair<string, string>("MetaUrl", model.MetaUrl),
+                new KeyValuePair<string, string>("MetaUrl", model.MetaUrl.ToString()),
                 new KeyValuePair<string, string>("PublishedAt", model.PublishedAt.ToString("o")),
             };
 

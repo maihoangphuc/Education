@@ -32,6 +32,8 @@
 
         public async Task PostAsync(string url, List<KeyValuePair<string, string>> parameters)
         {
+            var httpClient = new HttpClient();
+
             var httpRequestMessage = new HttpRequestMessage();
             httpRequestMessage.Method = HttpMethod.Post;
 
@@ -41,7 +43,7 @@
             httpRequestMessage.Content = content;
 
             // Thực hiện Post
-            var response = await _httpClient.SendAsync(httpRequestMessage);
+            var response = await httpClient.SendAsync(httpRequestMessage);
             await response.Content.ReadAsStringAsync();
         }
 

@@ -1,3 +1,5 @@
+﻿using System.ComponentModel.DataAnnotations;
+
 namespace Education.Models
 {
     public class NewsModel<T>
@@ -8,12 +10,29 @@ namespace Education.Models
     public class NewsItemModel
     {
         public int Id { get; set; }
-        public int SchoolId { get; set; }
-        public int NewsCategoryId { get; set; }
+
+        [Required(ErrorMessage = "Trường SchoolId là bắt buộc.")]
+        public int? SchoolId { get; set; }
+
+        [Required(ErrorMessage = "Trường NewsCategoryId là bắt buộc.")]
+        public int? NewsCategoryId { get; set; }
+
+        [Required(ErrorMessage = "Trường Name là bắt buộc.")]
+        [StringLength(255, ErrorMessage = "Trường Name không được vượt quá 255 ký tự.")]
         public string Name { get; set; }
+
+        [StringLength(1000, ErrorMessage = "Trường Description không được vượt quá 1000 ký tự.")]
         public string Description { get; set; }
+
         public bool IsHot { get; set; }
+
+        public int Status { get; set; }
+
+        [Required(ErrorMessage = "Trường MetaUrl là bắt buộc.")]
+        public string MetaUrl { get; set; }
+
         public ImageObjModel? ImageObj { get; set; }
+
         public DateTime PublishedAt { get; set; }
     }
 

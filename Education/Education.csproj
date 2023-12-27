@@ -7,9 +7,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Models\NewFolder\**" />
 	  <Compile Remove="wwwroot\lib\base\**" />
+	  <Content Remove="Models\NewFolder\**" />
 	  <Content Remove="wwwroot\lib\base\**" />
+	  <EmbeddedResource Remove="Models\NewFolder\**" />
 	  <EmbeddedResource Remove="wwwroot\lib\base\**" />
+	  <None Remove="Models\NewFolder\**" />
 	  <None Remove="wwwroot\lib\base\**" />
 	</ItemGroup>
 
@@ -26,6 +30,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="X.PagedList" Version="8.4.7" />
 		<PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
 	</ItemGroup>
@@ -84,10 +89,6 @@
 	  <None Include="wwwroot\lib\datatables.net-bs4\dataTables.bootstrap4.js" />
 	  <None Include="wwwroot\lib\feather\fonts\feather-webfont.svg" />
 	  <None Include="wwwroot\lib\ti-icons\fonts\themify.svg" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Models\NewFolder\" />
 	</ItemGroup>
 
 </Project>
