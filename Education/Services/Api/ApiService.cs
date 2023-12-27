@@ -9,7 +9,8 @@
 
         public ApiService(HttpClient httpClient, ApiConfig apiConfig)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
 
             DefautApiBaseUri = apiConfig.DefautApiBaseUri;
             ImageApiBaseUri = apiConfig.ImageApiBaseUri;
