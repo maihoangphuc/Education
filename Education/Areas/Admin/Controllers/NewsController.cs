@@ -1,8 +1,8 @@
 ﻿using Education.Models;
-using Education.Services.Api;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using System.Globalization;
 using X.PagedList;
 
@@ -12,31 +12,23 @@ namespace Education.Areas.Admin.Controllers
     public class NewsController : Controller
     {
         private readonly ILogger<NewsController> _logger;
-        private readonly IApiService _apiService;
+        private readonly HttpClient _httpClient;
+        Uri _baseUri = new Uri("https://api-intern-test.h2aits.com/");
 
-        public NewsController(ILogger<NewsController> logger, IApiService apiService)
+        public NewsController(ILogger<NewsController> logger, HttpClient httpClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _httpClient.BaseAddress = _baseUri;
         }
 
-        [HttpGet]
         public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
-        {
-            var listNews = await GetAllNews(page, record, sequenceStatus, searchText, schoolId);
-            if (listNews != null)
-                return View(listNews);
-            return View(null);
-        }
-
-        [HttpGet]
-        public async Task<IPagedList<NewsItemModel>> GetAllNews(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
         {
             int pageNumber = page ?? 1;
             int pageSize = record ?? 6;
             int status = sequenceStatus ?? 1;
-            int school = schoolId ?? 9;
             string search = searchText ?? "";
+            int school = schoolId ?? 9;
 
             if (page < 1)
             {
@@ -45,19 +37,32 @@ namespace Education.Areas.Admin.Controllers
 
             try
             {
-                var newsEndpoint = $"/News/GetListByPaging?sequenceStatus={status}&record={pageSize}&page={pageNumber}&searchText={search}&schoolId={school}";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
+                // Gọi API và xử lý kết quả
+                string apiUrl = $"{_baseUri}News/GetListByPaging?sequenceStatus={status}&?record={pageSize}&?page={pageNumber}&searchText={search}&schoolId={school}";
+                HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
 
-                var newsListModel = await _apiService.GetAsync<NewsModel<List<NewsItemModel>>>(fullNewsApiUrl);
+                response.EnsureSuccessStatusCode();
 
-                var pagedList = newsListModel.Data.ToPagedList(pageNumber, pageSize);
-                return pagedList;
+                if (response.IsSuccessStatusCode)
+                {
+                    string apiResponse = await response.Content.ReadAsStringAsync();
+
+                    // Model
+                    var newsListModel = JsonConvert.DeserializeObject<NewsModel<List<NewsItemModel>>>(apiResponse);
+
+                    // Xử lý kết quả API ở đây
+                    var newsLists = newsListModel?.Data;
+
+                    return View(newsLists?.ToList().ToPagedList(pageNumber, pageSize));
+                }
             }
             catch (HttpRequestException e)
             {
-                _logger.LogError("Error calling API: {Message}", e.Message);
-                throw new Exception("Error calling API: " + e.Message);
+                // Xử lý lỗi gọi API
+                ViewBag.Error = "Error calling API: " + e.Message;
             }
+
+            return View();
         }
 
         [HttpGet]
@@ -92,13 +97,14 @@ namespace Education.Areas.Admin.Controllers
 
             try
             {
-                var schoolEndpoint = $"/School/GetListByPaging?SequenceStatus={status}";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{schoolEndpoint}";
-
-                var res = await _apiService.GetAsync<SchoolModel<List<SchoolItemModel>>>(fullNewsApiUrl);
-                var schoolList = res?.Data?.ToList();
+                string apiUrl = $"{_baseUri}School/GetListByPaging?SequenceStatus={status}";
+                var response = await _httpClient.GetAsync(apiUrl);
+                response.EnsureSuccessStatusCode();
+                var res = await response.Content.ReadAsAsync<SchoolModel<List<SchoolItemModel>>>();
+                var schoolList = res?.Data;
                 return schoolList;
             }
+
             catch (HttpRequestException e)
             {
                 _logger.LogError("Error calling API: {Message}", e.Message);
@@ -113,11 +119,11 @@ namespace Education.Areas.Admin.Controllers
 
             try
             {
-                var newsCategoryEndpoint = $"/NewsCategory/GetListByPaging?SequenceStatus={status}";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
-
-                var res = await _apiService.GetAsync<NewsCategoryModel<List<NewsCategoryItemModel>>>(fullNewsApiUrl);
-                var newsCategoryList = res?.Data?.ToList();
+                string apiUrl = $"{_baseUri}NewsCategory/GetListByPaging?SequenceStatus={status}";
+                var response = await _httpClient.GetAsync(apiUrl);
+                response.EnsureSuccessStatusCode();
+                var res = await response.Content.ReadAsAsync<NewsCategoryModel<List<NewsCategoryItemModel>>>();
+                var newsCategoryList = res?.Data;
                 return newsCategoryList;
             }
             catch (HttpRequestException e)
@@ -129,43 +135,57 @@ namespace Education.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task AddNews(NewsItemModel model)
+        public async Task<IActionResult> AddNews(NewsItemModel model)
         {
             try
             {
-                var data = new List<KeyValuePair<string, string>>
-                     {
-                        new KeyValuePair<string, string>("NewsCategoryId", model.NewsCategoryId?.ToString()),
-                        new KeyValuePair<string, string>("SchoolId", model.SchoolId?.ToString()),
-                        new KeyValuePair<string, string>("Name", model.Name.ToString()),
-                        new KeyValuePair<string, string>("Description", model.Description),
-                        new KeyValuePair<string, string>("Status", model.Status.ToString()),
-                        new KeyValuePair<string, string>("IsHot", model.IsHot.ToString()),
-                        new KeyValuePair<string, string>("MetaUrl", model.MetaUrl.ToString()),
-                        new KeyValuePair<string, string>("PublishedAt", model.PublishedAt.ToString("o")),
-                     };
+                if (ModelState.IsValid)
+                {
+                    var data = new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>("NewsCategoryId", model.NewsCategoryId?.ToString()),
+                    new KeyValuePair<string, string>("SchoolId", model.SchoolId?.ToString()),
+                    new KeyValuePair<string, string>("Name", model.Name.ToString()),
+                    new KeyValuePair<string, string>("Description", model.Description),
+                    new KeyValuePair<string, string>("Status", model.Status.ToString()),
+                    new KeyValuePair<string, string>("IsHot", model.IsHot.ToString()),
+                    new KeyValuePair<string, string>("MetaUrl", model.MetaUrl.ToString()),
+                    new KeyValuePair<string, string>("PublishedAt", model.PublishedAt.ToString("o")),
+                };
+                    string apiUrl = $"{_baseUri}News/Create";
 
-                var newsCategoryEndpoint = "/News/Create";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
+                    var httpRequestMessage = new HttpRequestMessage();
+                    httpRequestMessage.Method = HttpMethod.Post;
+                    httpRequestMessage.RequestUri = new Uri(apiUrl);
 
-                await _apiService.PostAsync(fullNewsApiUrl, data);
+                    var content = new FormUrlEncodedContent(data);
+                    httpRequestMessage.Content = content;
 
-                RedirectToAction("index", "news", new { area = "admin" });
+                    // Thực hiện Post
+                    var response = await _httpClient.SendAsync(httpRequestMessage);
+                    await response.Content.ReadAsAsync<NewsModel<List<NewsItemModel>>>();
+
+                    return RedirectToAction("index", "news", new { area = "admin" });
+                }
+                else
+                {
+                    return RedirectToAction("add", "news", new { area = "admin" });
+                }
+
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", ex.Message);
+                return RedirectToAction("index", "news", new { area = "admin" });
             }
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
             try
             {
-                var idNews = id ?? 0;
-
-                var newsDetail = await GetDetailNews(idNews);
+                var newsDetail = await GetDetailNews(id);
 
                 if (newsDetail == null)
                 {
@@ -213,11 +233,13 @@ namespace Education.Areas.Admin.Controllers
         {
             try
             {
-                var newsEndpoint = $"/NewsCategory/GetById?id={id}";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
+                string apiUrl = $"{_baseUri}NewsCategory/GetById?id={id}";
+                var response = await _httpClient.GetAsync(apiUrl);
 
-                var res = await _apiService.GetAsync<NewsCategoryModel<NewsCategoryItemModel>>(fullNewsApiUrl);
-                return res.Data ?? new NewsCategoryItemModel();
+                response.EnsureSuccessStatusCode();
+                var res = await response.Content.ReadAsAsync<NewsCategoryModel<NewsCategoryItemModel>>();
+                var newsCategory = res?.Data;
+                return newsCategory;
 
             }
             catch (HttpRequestException e)
@@ -232,12 +254,12 @@ namespace Education.Areas.Admin.Controllers
         {
             try
             {
-                var newsEndpoint = $"/School/GetById?id={id}";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
-
-                var res = await _apiService.GetAsync<SchoolModel<SchoolItemModel>>(fullNewsApiUrl);
-                return res.Data ?? new SchoolItemModel();
-
+                string apiUrl = $"{_baseUri}School/GetById?id={id}";
+                var response = await _httpClient.GetAsync(apiUrl);
+                response.EnsureSuccessStatusCode();
+                var res = await response.Content.ReadAsAsync<SchoolModel<SchoolItemModel>>();
+                var school = res?.Data;
+                return school;
             }
             catch (HttpRequestException e)
             {
@@ -251,11 +273,12 @@ namespace Education.Areas.Admin.Controllers
         {
             try
             {
-                var newsEndpoint = $"/News/GetById?id={id}";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
-
-                var res = await _apiService.GetAsync<NewsModel<NewsItemModel>>(fullNewsApiUrl);
-                return res.Data ?? new NewsItemModel();
+                string apiUrl = $"{_baseUri}News/GetById?id={id}";
+                var response = await _httpClient.GetAsync(apiUrl);
+                response.EnsureSuccessStatusCode();
+                var res = await response.Content.ReadAsAsync<NewsModel<NewsItemModel>>();
+                var news = res?.Data;
+                return news;
             }
             catch (HttpRequestException e)
             {
@@ -264,54 +287,55 @@ namespace Education.Areas.Admin.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditNews(NewsItemModel model)
         {
             try
             {
-                var _httpClient = new HttpClient();
                 var content = new MultipartFormDataContent();
 
                 foreach (var pr in typeof(NewsItemModel).GetProperties())
                 {
                     var value = pr.GetValue(model)?.ToString() ?? "";
-
-                    /*  if (pr.Name == "PublishedAt")
-                      {
-                          value = DateTime.Parse(value).ToString("MM/dd/yyyy");
-                      }*/
+                    if (pr.Name == "PublishedAt")
+                    {
+                        value = DateTime.Parse(value).ToString("yyyy/MM/dd");
+                    }
                     content.Add(new StringContent(value), pr.Name);
+
                 }
 
-                var newsCategoryEndpoint = "/news/update";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
+                string apiUrl = "News/Update";
 
-                var response = await _httpClient.PutAsync(fullNewsApiUrl, content);
-                await response.Content.ReadAsStringAsync();
+                // Thực hiện Post
+                var response = await _httpClient.PutAsync(_httpClient.BaseAddress + apiUrl, content);
+                var values = response.Content.ReadAsStringAsync();
+
                 return RedirectToAction("index", "news", new { area = "admin" });
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", ex.Message);
-                return View();
+                return RedirectToAction("index", "news", new { area = "admin" });
             }
         }
 
-        [HttpDelete]
-        public async Task DeleteNews(int id)
+        [HttpGet]
+        public async Task<IActionResult> DeleteNews(int id)
         {
             try
             {
-                var newsCategoryEndpoint = $"News/Delete?id={id}";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
+                string apiUrl = $"{_baseUri}News/Delete?id={id}";
 
-                await _apiService.DeleteAsync(fullNewsApiUrl);
-                RedirectToAction("index", "news", new { area = "admin" });
+                // Thực hiện Delete
+                await _httpClient.DeleteAsync(apiUrl);
+                return RedirectToAction("index", "news", new { area = "admin" });
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", ex.Message);
+                return RedirectToAction("index", "news", new { area = "admin" });
             }
         }
     }

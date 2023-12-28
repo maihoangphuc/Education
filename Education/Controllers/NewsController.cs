@@ -1,6 +1,6 @@
 ﻿using Education.Models;
-using Education.Services.Api;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using X.PagedList;
 
 namespace Education.Controllers
@@ -8,22 +8,22 @@ namespace Education.Controllers
     public class NewsController : Controller
     {
         private readonly ILogger<NewsController> _logger;
-        private readonly IApiService _apiService;
+        private readonly HttpClient _httpClient;
+        private readonly string _baseUri = "https://api-intern-test.h2aits.com/";
 
-        public NewsController(ILogger<NewsController> logger, IApiService apiService)
+        public NewsController(ILogger<NewsController> logger, HttpClient httpClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        [HttpGet]
         public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
         {
             int pageNumber = page ?? 1;
             int pageSize = record ?? 6;
             int status = sequenceStatus ?? 1;
-            int school = schoolId ?? 9;
             string search = searchText ?? "";
+            int school = schoolId ?? 9;
 
             if (page < 1)
             {
@@ -32,44 +32,50 @@ namespace Education.Controllers
 
             try
             {
-                var newsEndpoint = $"/News/GetListByPaging?sequenceStatus={status}&record={pageSize}&page={pageNumber}&searchText={search}&schoolId={school}";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
+                // Gọi API và xử lý kết quả
+                string apiUrl = $"{_baseUri}News/GetListByPaging?sequenceStatus={status}&?record={pageSize}&?page={pageNumber}&searchText={search}&schoolId={school}";
+                HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
 
-                var newsListModel = await _apiService.GetAsync<NewsModel<List<NewsItemModel>>>(fullNewsApiUrl);
+                response.EnsureSuccessStatusCode();
 
+                if (response.IsSuccessStatusCode)
+                {
+                    string apiResponse = await response.Content.ReadAsStringAsync();
 
-                return View(newsListModel?.Data?.ToPagedList(pageNumber, pageSize));
+                    // Model
+                    var newsListModel = JsonConvert.DeserializeObject<NewsModel<List<NewsItemModel>>>(apiResponse);
+
+                    // Xử lý kết quả API ở đây
+                    var newsLists = newsListModel?.Data;
+
+                    return View(newsLists?.ToList().ToPagedList(pageNumber, pageSize));
+                }
             }
             catch (HttpRequestException e)
             {
-                _logger.LogError("Error calling API: {Message}", e.Message);
-                throw new Exception("Error calling API: " + e.Message);
+                // Xử lý lỗi gọi API
+                ViewBag.Error = "Error calling API: " + e.Message;
             }
+
+            return View();
         }
-
-        /*[HttpGet]
-        public async Task<IPagedList<NewsItemModel>> GetAllNews(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
-        {
-
-        }*/
 
         [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
             if (id < 1)
             {
-                id = 1;
+                return RedirectToAction("index", "news");
             }
 
             try
             {
-                var newsEndpoint = $"/News/GetById?id={id}";
-                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
-
-                var newsListModel = await _apiService.GetAsync<NewsModel<NewsItemModel>>(fullNewsApiUrl);
-
-                return View(newsListModel.Data);
-
+                string apiUrl = $"{_baseUri}News/GetById?id={id}";
+                var response = await _httpClient.GetAsync(apiUrl);
+                response.EnsureSuccessStatusCode();
+                var res = await response.Content.ReadAsAsync<NewsModel<NewsItemModel>>();
+                var news = res?.Data;
+                return View(news);
             }
             catch (HttpRequestException e)
             {

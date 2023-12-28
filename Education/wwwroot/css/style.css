@@ -1665,6 +1665,7 @@ section {
         color: #fff;
     }
 
+
 /*--------------------------------------------------------------
 # Not Found
 --------------------------------------------------------------*/
@@ -1778,6 +1779,13 @@ section {
     height: 20px; /* Điều chỉnh chiều cao văn bản */
     background-color: #ddd;
     margin-top: 10px;
+}
+
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #5fcf80;
+    border-color: #5fcf80;
 }
 
 @keyframes skeleton-loading {

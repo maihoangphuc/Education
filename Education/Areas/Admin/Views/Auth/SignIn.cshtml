@@ -7,7 +7,7 @@
 
 <div class="auth-form-light text-left py-5 px-4 px-sm-5">
     <div class="brand-logo">
-        <img src="../../images/logo.svg" alt="logo">
+        <img src="" alt="logo">
     </div>
     <h4>Đăng nhập</h4>
     <form class="pt-3" method="post" asp-controller="Auth" asp-action="SignIn">
@@ -15,7 +15,7 @@
 
         <div class="form-group">
             <label asp-for="Username"></label>
-            <input asp-for="Username" class="form-control form-control-lg" placeholder="Tên người dùng" required>
+            <input asp-for="Username" type="text" class="form-control form-control-lg" placeholder="Tên người dùng" required>
         </div>
         <div class="form-group">
             <label asp-for="Password"></label>

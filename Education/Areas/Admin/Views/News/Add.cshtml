@@ -19,11 +19,12 @@
                         <div class="card-body">
                             <form asp-area="admin" asp-controller="news" asp-action="addNews" method="post" enctype="multipart/form-data">
                                 @Html.AntiForgeryToken()
+
                                 <div class="row mt-4">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label asp-for="Name">Tên bài viết</label>
-                                            <input asp-for="Name" class="form-control" placeholder="Nhập tên bài viết">
+                                            <input asp-for="Name" class="form-control" placeholder="Nhập tên bài viết" required>
                                             <span asp-validation-for="Name" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -39,7 +40,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label asp-for="Description">Mô tả bài viết</label>
-                                            <textarea asp-for="Description" class="form-control" rows="8" placeholder="Nhập mô tả bài viết"></textarea>
+                                            <textarea asp-for="Description" class="form-control" rows="8" placeholder="Nhập mô tả bài viết" required></textarea>
                                             <span asp-validation-for="Description" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -83,8 +84,8 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label asp-for="MetaUrl">Url bài viết</label>
-                                            <input asp-for="MetaUrl" class="form-control" placeholder="Nhập theo định dạng: ten-bai-viet" />
-                                            <span asp-validation-for="MetaUrl" class="text-danger"></span>
+                                            <input asp-for="MetaUrl" class="form-control" placeholder="Nhập theo định dạng: ten-bai-viet" required />
+                                            <span asp-validation-for="MetaUrl" class="text-danger validation-message"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -108,7 +109,7 @@
                                     </div>
                                     <input type="hidden" asp-for="PublishedAt" value="@DateTime.Now.ToString()" />
                                 </div>
-                                <button type="submit" class="btn btn-primary">Gửi</button>
+                                <button type="submit" class="btn btn-primary" formnovalidate>Gửi</button>
                             </form>
                         </div>
                     </div>

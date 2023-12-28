@@ -1,4 +1,4 @@
-﻿namespace Education.Services.Api
+﻿/*namespace Education.Services.Api
 {
     public interface IApiService
     {
@@ -11,3 +11,4 @@
         Task DeleteAsync(string endpoint);
     }
 }
+*/

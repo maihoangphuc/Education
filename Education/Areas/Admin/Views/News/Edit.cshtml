@@ -17,7 +17,7 @@
                 <div class="col-12 grid-margin">
                     <div class="card">
                         <div class="card-body">
-                            <form asp-area="admin" asp-controller="news" asp-action="editNews" method="put">
+                            <form asp-area="admin" asp-controller="news" asp-action="editNews" method="post" enctype="multipart/form-data">
                                 @Html.AntiForgeryToken()
 
                                 <input type="hidden" asp-for="Id" />
@@ -104,7 +104,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <input type="hidden" asp-for="PublishedAt" value="@DateTime.Parse(DateTime.Now.ToString()).ToString("yyyy/MM/dd")" />
+                                    <input type="hidden" asp-for="PublishedAt" value="@DateTime.Now" />
                                     <!-- Thêm các trường khác tương tự -->
                                 </div>
                                 <button type="submit" class="btn btn-primary">Gửi</button>

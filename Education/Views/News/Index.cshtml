@@ -43,10 +43,18 @@
                         {
                             <div class="col-lg-6">
                                 <div class="blog-item position-relative overflow-hidden rounded">
-                                    <img class="img-fluid"
-                                         src="@(newsItem.ImageObj != null && newsItem.ImageObj.RelativeUrl != null ?
-                                               newsItem.ImageObj.RelativeUrl : "~/img/background/background-blog.jpg")"
-                                         alt="" />
+                                    @if (newsItem.ImageObj != null && newsItem?.ImageObj?.RelativeUrl != null)
+                                    {
+                                        <img class="img-fluid"
+                                             src="@newsItem.ImageObj.RelativeUrl"
+                                             alt="" />
+                                    }
+                                    else
+                                    {
+                                        <img class="img-fluid"
+                                             src="~/img/background/background-blog.jpg"
+                                             alt="" />
+                                    }
                                     <a class="blog-overlay text-decoration-none" href="@Url.Action("detail", "news", new { id = newsItem.Id })">
                                         <h5 class="text-white mb-3">@newsItem.Name</h5>
                                         <p class="m-0">@newsItem.PublishedAt</p>
@@ -62,8 +70,8 @@
                     }
                 </div>
 
-               @*  @if (Model != null && Model.Any())
-                { *@
+                @if (Model != null && Model.Any())
+                {
                     <div class="container mt-4">
                         <div class="row">
                             <div class="col">
@@ -84,7 +92,7 @@
                             </div>
                         </div>
                     </div>
-              @*   } *@
+                }
             </div>
             <div class="col-lg-4">
                 <!-- Search Form -->

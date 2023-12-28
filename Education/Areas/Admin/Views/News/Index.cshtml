@@ -56,27 +56,34 @@
                                                         @i
                                                     </td>
                                                     <td class="py-1">
-                                                        <img src="@(newsItem.ImageObj != null && newsItem.ImageObj.RelativeUrl != null ?
-                                                         newsItem.ImageObj.RelativeUrl : "~/img/background/background-blog.jpg")"
-                                                             alt="image-news" />
+                                                        @if (newsItem.ImageObj != null && newsItem?.ImageObj?.RelativeUrl != null)
+                                                        {
+                                                            <img class="img-fluid"
+                                                                 src="@newsItem.ImageObj.RelativeUrl"
+                                                                 alt="" />
+                                                        }
+                                                        else
+                                                        {
+                                                           <div>--</div>
+                                                        }
                                                     </td>
                                                     <td class="limited-text">
-                                                        @newsItem.Name
+                                                        @(newsItem?.Name != null ? newsItem?.Name : "--")
                                                     </td>
                                                     <td>
-                                                        @(newsItem.IsHot ? @Html.Raw("<label class='badge badge-danger'>Hot</label>") : "Không")
+                                                        @(newsItem?.IsHot != null ? @Html.Raw("<label class='badge badge-danger'>Hot</label>") : "Không")
                                                     </td>
                                                     <td class="limited-text">
-                                                        @newsItem.Description
+                                                        @(newsItem?.Description != null ? newsItem?.Description : "--")
                                                     </td>
                                                     <td>
-                                                        @newsItem.PublishedAt
+                                                        @(newsItem?.PublishedAt != null ? newsItem?.PublishedAt : "--")
                                                     </td>
                                                     <td>
-                                                        <a asp-area="admin" asp-controller="news" asp-action="edit" asp-route-id="@newsItem.Id" class="btn btn-info">
+                                                        <a asp-area="admin" asp-controller="news" asp-action="edit" asp-route-id="@newsItem?.Id" class="btn btn-info">
                                                             <i class="ti-pencil icon-sm"></i>
                                                         </a>
-                                                        <a asp-area="admin" asp-controller="news" asp-action="deleteNews" asp-route-id="@newsItem.Id" class="btn btn-danger">
+                                                        <a asp-area="admin" asp-controller="news" asp-action="deleteNews" asp-route-id="@newsItem?.Id" class="btn btn-danger">
                                                             <i class="ti-trash icon-sm"></i>
                                                         </a>
                                                     </td>
