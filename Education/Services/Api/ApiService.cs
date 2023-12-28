@@ -1,6 +1,6 @@
-﻿/*namespace Education.Services.Api
+﻿namespace Education.Services.Api
 {
-    public class ApiService : IApiService
+    public class ApiService
     {
         public string DefautApiBaseUri { get; }
         public string ImageApiBaseUri { get; }
@@ -46,16 +46,16 @@
 
         public async Task PutAsync(string url, MultipartFormDataContent content)
         {
-            *//*   var httpRequestMessage = new HttpRequestMessage();
-               httpRequestMessage.Method = HttpMethod.Post;
-               httpRequestMessage.Headers.Add("User-Agent", "Mozilla/5.0");
-               httpRequestMessage.RequestUri = new Uri(url);
+            var httpRequestMessage = new HttpRequestMessage();
+            httpRequestMessage.Method = HttpMethod.Post;
+            httpRequestMessage.Headers.Add("User-Agent", "Mozilla/5.0");
+            httpRequestMessage.RequestUri = new Uri(url);
 
-               httpRequestMessage.Content = content;
+            httpRequestMessage.Content = content;
 
-               // Thực hiện Put
-               var response = await _httpClient.SendAsync(httpRequestMessage);
-               await response.Content.ReadAsStringAsync();*//*
+            // Thực hiện Put
+            var response = await _httpClient.SendAsync(httpRequestMessage);
+            await response.Content.ReadAsStringAsync();
 
             await _httpClient.PostAsync(url, content);
         }
@@ -69,4 +69,4 @@
             return response;
         }
     }
-}*/
+}
