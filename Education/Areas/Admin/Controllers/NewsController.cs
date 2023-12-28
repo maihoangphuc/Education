@@ -1,8 +1,8 @@
 ﻿using Education.Models;
+using Education.Services.Api;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using System.Globalization;
 using X.PagedList;
 
@@ -12,58 +12,43 @@ namespace Education.Areas.Admin.Controllers
     public class NewsController : Controller
     {
         private readonly ILogger<NewsController> _logger;
-        private readonly HttpClient _httpClient;
-        Uri _baseUri = new Uri("https://api-intern-test.h2aits.com/");
-        private readonly ApiConfig _apiConfig;
+        private readonly ApiService _apiService;
 
-        public NewsController(ILogger<NewsController> logger, HttpClient httpClient)
+        public NewsController(ILogger<NewsController> logger, ApiService apiService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            /*            _httpClient.BaseAddress = _baseUri;*/
+            _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
         }
 
-        public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
+        public async Task<IActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
         {
-            int pageNumber = page ?? 1;
-            int pageSize = record ?? 6;
-            int status = sequenceStatus ?? 1;
-            string search = searchText ?? "";
-            int school = schoolId ?? 9;
-
-            if (page < 1)
-            {
-                pageNumber = 1;
-            }
-
             try
             {
-                // Gọi API và xử lý kết quả
-                string apiUrl = $"{_baseUri}News/GetListByPaging?sequenceStatus={status}&?record={pageSize}&?page={pageNumber}&searchText={search}&schoolId={school}";
-                HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
+                int pageNumber = page ?? 1;
+                int pageSize = record ?? 6;
+                int status = sequenceStatus ?? 1;
+                int school = schoolId ?? 9;
+                string search = searchText ?? "";
 
-                response.EnsureSuccessStatusCode();
-
-                if (response.IsSuccessStatusCode)
+                if (page < 1)
                 {
-                    string apiResponse = await response.Content.ReadAsStringAsync();
-
-                    // Model
-                    var newsListModel = JsonConvert.DeserializeObject<NewsModel<List<NewsItemModel>>>(apiResponse);
-
-                    // Xử lý kết quả API ở đây
-                    var newsLists = newsListModel?.Data;
-
-                    return View(newsLists?.ToList().ToPagedList(pageNumber, pageSize));
+                    pageNumber = 1;
                 }
+                string apiUrl = $"{_apiService.DefautApiBaseUri}/News/GetListByPaging?sequenceStatus={status}&?record={pageSize}&?page={pageNumber}&searchText={search}&schoolId={school}";
+
+                var response = await _apiService.GetAsync<NewsModel<List<NewsItemModel>>>(apiUrl);
+
+                var data = response?.Data ?? new List<NewsItemModel>();
+                var panigation = data.ToPagedList(pageNumber, pageSize);
+
+                return View(panigation);
             }
             catch (HttpRequestException e)
             {
                 // Xử lý lỗi gọi API
                 ViewBag.Error = "Error calling API: " + e.Message;
+                return View();
             }
-
-            return View();
         }
 
         [HttpGet]
@@ -87,7 +72,7 @@ namespace Education.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("Error in Add action: {Message}", ex.Message);
-                throw;
+                return View();
             }
         }
 
@@ -98,14 +83,12 @@ namespace Education.Areas.Admin.Controllers
 
             try
             {
-                string apiUrl = $"{_baseUri}School/GetListByPaging?SequenceStatus={status}";
-                var response = await _httpClient.GetAsync(apiUrl);
-                response.EnsureSuccessStatusCode();
-                var res = await response.Content.ReadAsAsync<SchoolModel<List<SchoolItemModel>>>();
-                var schoolList = res?.Data;
-                return schoolList;
-            }
+                string apiUrl = $"{_apiService.DefautApiBaseUri}/School/GetListByPaging?SequenceStatus={status}";
+                var response = await _apiService.GetAsync<SchoolModel<List<SchoolItemModel>>>(apiUrl);
+                var data = response.Data;
 
+                return data ?? new List<SchoolItemModel>();
+            }
             catch (HttpRequestException e)
             {
                 _logger.LogError("Error calling API: {Message}", e.Message);
@@ -120,12 +103,11 @@ namespace Education.Areas.Admin.Controllers
 
             try
             {
-                string apiUrl = $"{_baseUri}NewsCategory/GetListByPaging?SequenceStatus={status}";
-                var response = await _httpClient.GetAsync(apiUrl);
-                response.EnsureSuccessStatusCode();
-                var res = await response.Content.ReadAsAsync<NewsCategoryModel<List<NewsCategoryItemModel>>>();
-                var newsCategoryList = res?.Data;
-                return newsCategoryList;
+                string apiUrl = $"{_apiService.DefautApiBaseUri}/NewsCategory/GetListByPaging?SequenceStatus={status}";
+                var response = await _apiService.GetAsync<NewsCategoryModel<List<NewsCategoryItemModel>>>(apiUrl);
+                var data = response.Data;
+
+                return data ?? new List<NewsCategoryItemModel>();
             }
             catch (HttpRequestException e)
             {
@@ -135,44 +117,26 @@ namespace Education.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddNews(NewsItemModel model)
         {
             try
             {
-                if (ModelState.IsValid)
+                string apiUrl = $"{_apiService.DefautApiBaseUri}/News/Create";
+                var content = new MultipartFormDataContent();
+
+                foreach (var pr in typeof(NewsItemModel).GetProperties())
                 {
-                    var data = new List<KeyValuePair<string, string>>
-                {
-                    new KeyValuePair<string, string>("NewsCategoryId", model.NewsCategoryId?.ToString()),
-                    new KeyValuePair<string, string>("SchoolId", model.SchoolId?.ToString()),
-                    new KeyValuePair<string, string>("Name", model.Name.ToString()),
-                    new KeyValuePair<string, string>("Description", model.Description),
-                    new KeyValuePair<string, string>("Status", model.Status.ToString()),
-                    new KeyValuePair<string, string>("IsHot", model.IsHot.ToString()),
-                    new KeyValuePair<string, string>("MetaUrl", model.MetaUrl.ToString()),
-                    new KeyValuePair<string, string>("PublishedAt", model.PublishedAt.ToString("o")),
-                };
-                    string apiUrl = $"{_baseUri}News/Create";
-
-                    var httpRequestMessage = new HttpRequestMessage();
-                    httpRequestMessage.Method = HttpMethod.Post;
-                    httpRequestMessage.RequestUri = new Uri(apiUrl);
-
-                    var content = new FormUrlEncodedContent(data);
-                    httpRequestMessage.Content = content;
-
-                    // Thực hiện Post
-                    var response = await _httpClient.SendAsync(httpRequestMessage);
-                    await response.Content.ReadAsAsync<NewsModel<List<NewsItemModel>>>();
-
-                    return RedirectToAction("index", "news", new { area = "admin" });
-                }
-                else
-                {
-                    return RedirectToAction("add", "news", new { area = "admin" });
+                    var value = pr.GetValue(model)?.ToString() ?? "";
+                    if (pr.Name == "PublishedAt")
+                    {
+                        value = DateTime.Parse(value).ToString("o");
+                    }
+                    content.Add(new StringContent(value), pr.Name);
                 }
 
+                // Thực hiện Post
+                await _apiService.PostAsync(apiUrl, content);
+                return RedirectToAction("index", "news", new { area = "admin" });
             }
             catch (Exception ex)
             {
@@ -206,13 +170,16 @@ namespace Education.Areas.Admin.Controllers
                 //news detail
                 ViewBag.NewsDetail = newsDetail;
 
-                //droplist
+                // Droplist
                 ViewBag.SchoolList = new SelectList(schoolList, "Id", "Name", schoolDetail.Id);
                 ViewBag.NewsCategoryList = new SelectList(newsCategoryList, "Id", "Name", newsCategoryDetail.Id);
 
-                // Đặt giá trị mặc định cho thuộc tính mô hình
                 var modelState = ModelState;
+
+                // Xóa giá trị mặc định cho thuộc tính mô hình
                 modelState.Clear();
+
+                // Đặt giá trị mặc định cho thuộc tính mô hình
                 modelState.SetModelValue("Id", new ValueProviderResult(newsDetail?.Id.ToString() ?? "", CultureInfo.CurrentCulture));
                 modelState.SetModelValue("Name", new ValueProviderResult(newsDetail?.Name.ToString() ?? "", CultureInfo.CurrentCulture));
                 modelState.SetModelValue("Description", new ValueProviderResult(newsDetail?.Description.ToString() ?? "", CultureInfo.CurrentCulture));
@@ -234,14 +201,11 @@ namespace Education.Areas.Admin.Controllers
         {
             try
             {
-                string apiUrl = $"{_baseUri}NewsCategory/GetById?id={id}";
-                var response = await _httpClient.GetAsync(apiUrl);
+                string apiUrl = $"{_apiService.DefautApiBaseUri}/NewsCategory/GetById?id={id}";
+                var response = await _apiService.GetAsync<NewsCategoryModel<NewsCategoryItemModel>>(apiUrl);
 
-                response.EnsureSuccessStatusCode();
-                var res = await response.Content.ReadAsAsync<NewsCategoryModel<NewsCategoryItemModel>>();
-                var newsCategory = res?.Data;
-                return newsCategory;
-
+                var data = response.Data;
+                return data ?? new NewsCategoryItemModel();
             }
             catch (HttpRequestException e)
             {
@@ -255,12 +219,11 @@ namespace Education.Areas.Admin.Controllers
         {
             try
             {
-                string apiUrl = $"{_baseUri}School/GetById?id={id}";
-                var response = await _httpClient.GetAsync(apiUrl);
-                response.EnsureSuccessStatusCode();
-                var res = await response.Content.ReadAsAsync<SchoolModel<SchoolItemModel>>();
-                var school = res?.Data;
-                return school;
+                string apiUrl = $"{_apiService.DefautApiBaseUri}/School/GetById?id={id}";
+                var response = await _apiService.GetAsync<SchoolModel<SchoolItemModel>>(apiUrl);
+
+                var data = response.Data;
+                return data ?? new SchoolItemModel();
             }
             catch (HttpRequestException e)
             {
@@ -274,12 +237,11 @@ namespace Education.Areas.Admin.Controllers
         {
             try
             {
-                string apiUrl = $"{_baseUri}News/GetById?id={id}";
-                var response = await _httpClient.GetAsync(apiUrl);
-                response.EnsureSuccessStatusCode();
-                var res = await response.Content.ReadAsAsync<NewsModel<NewsItemModel>>();
-                var news = res?.Data;
-                return news;
+                string apiUrl = $"{_apiService.DefautApiBaseUri}/News/GetById?id={id}";
+                var response = await _apiService.GetAsync<NewsModel<NewsItemModel>>(apiUrl);
+
+                var data = response.Data;
+                return data ?? new NewsItemModel();
             }
             catch (HttpRequestException e)
             {
@@ -289,11 +251,11 @@ namespace Education.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditNews(NewsItemModel model)
         {
             try
             {
+                string apiUrl = $"{_apiService.DefautApiBaseUri}/News/Update";
                 var content = new MultipartFormDataContent();
 
                 foreach (var pr in typeof(NewsItemModel).GetProperties())
@@ -301,18 +263,13 @@ namespace Education.Areas.Admin.Controllers
                     var value = pr.GetValue(model)?.ToString() ?? "";
                     if (pr.Name == "PublishedAt")
                     {
-                        value = DateTime.Parse(value).ToString("yyyy/MM/dd");
+                        value = DateTime.Parse(value).ToString("o");
                     }
                     content.Add(new StringContent(value), pr.Name);
-
                 }
 
-                string apiUrl = "News/Update";
-
-                // Thực hiện Post
-                var response = await _httpClient.PutAsync(_httpClient.BaseAddress + apiUrl, content);
-                var values = response.Content.ReadAsStringAsync();
-
+                // Thực hiện Put
+                await _apiService.PutAsync(apiUrl, content);
                 return RedirectToAction("index", "news", new { area = "admin" });
             }
             catch (Exception ex)
@@ -327,10 +284,10 @@ namespace Education.Areas.Admin.Controllers
         {
             try
             {
-                string apiUrl = $"https://api-intern-test.h2aits.com/News/Delete?id={id}";
+                string apiUrl = $"{_apiService.DefautApiBaseUri}/News/Delete?id={id}";
 
                 // Thực hiện Delete
-                await _httpClient.DeleteAsync(apiUrl);
+                await _apiService.DeleteAsync(apiUrl);
                 return RedirectToAction("index", "news", new { area = "admin" });
             }
             catch (Exception ex)
