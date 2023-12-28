@@ -14,12 +14,13 @@ namespace Education.Areas.Admin.Controllers
         private readonly ILogger<NewsController> _logger;
         private readonly HttpClient _httpClient;
         Uri _baseUri = new Uri("https://api-intern-test.h2aits.com/");
+        private readonly ApiConfig _apiConfig;
 
         public NewsController(ILogger<NewsController> logger, HttpClient httpClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _httpClient.BaseAddress = _baseUri;
+            /*            _httpClient.BaseAddress = _baseUri;*/
         }
 
         public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
@@ -326,7 +327,7 @@ namespace Education.Areas.Admin.Controllers
         {
             try
             {
-                string apiUrl = $"{_baseUri}News/Delete?id={id}";
+                string apiUrl = $"https://api-intern-test.h2aits.com/News/Delete?id={id}";
 
                 // Thực hiện Delete
                 await _httpClient.DeleteAsync(apiUrl);
