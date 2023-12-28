@@ -19,15 +19,6 @@ namespace Education.Controllers
         [HttpGet]
         public async Task<ActionResult> Index(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
         {
-            var listNews = await GetAllNews(page, record, sequenceStatus, searchText, schoolId);
-            if (listNews != null)
-                return View(listNews);
-            return View(null);
-        }
-
-        [HttpGet]
-        public async Task<IPagedList<NewsItemModel>> GetAllNews(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
-        {
             int pageNumber = page ?? 1;
             int pageSize = record ?? 6;
             int status = sequenceStatus ?? 1;
@@ -46,8 +37,8 @@ namespace Education.Controllers
 
                 var newsListModel = await _apiService.GetAsync<NewsModel<List<NewsItemModel>>>(fullNewsApiUrl);
 
-                var pagedList = newsListModel.Data.ToPagedList(pageNumber, pageSize);
-                return pagedList;
+
+                return View(newsListModel?.Data?.ToPagedList(pageNumber, pageSize));
             }
             catch (HttpRequestException e)
             {
@@ -55,6 +46,12 @@ namespace Education.Controllers
                 throw new Exception("Error calling API: " + e.Message);
             }
         }
+
+        /*[HttpGet]
+        public async Task<IPagedList<NewsItemModel>> GetAllNews(int? page, int? record, int? sequenceStatus, string? searchText, int? schoolId)
+        {
+
+        }*/
 
         [HttpGet]
         public async Task<IActionResult> Detail(int id)

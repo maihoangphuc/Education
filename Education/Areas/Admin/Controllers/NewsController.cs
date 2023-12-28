@@ -1,6 +1,9 @@
-﻿using global::Education.Models;
-using global::Education.Services.Api;
+﻿using Education.Models;
+using Education.Services.Api;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Globalization;
 using X.PagedList;
 
 namespace Education.Areas.Admin.Controllers
@@ -58,7 +61,7 @@ namespace Education.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Add()
+        public async Task<IActionResult> Add()
         {
             try
             {
@@ -104,7 +107,7 @@ namespace Education.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<List<NewsItemCategoryModel>> GetAllNewsCategory()
+        public async Task<List<NewsCategoryItemModel>> GetAllNewsCategory()
         {
             int status = 1;
 
@@ -113,7 +116,7 @@ namespace Education.Areas.Admin.Controllers
                 var newsCategoryEndpoint = $"/NewsCategory/GetListByPaging?SequenceStatus={status}";
                 var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
 
-                var res = await _apiService.GetAsync<NewsCategoryModel<List<NewsItemCategoryModel>>>(fullNewsApiUrl);
+                var res = await _apiService.GetAsync<NewsCategoryModel<List<NewsCategoryItemModel>>>(fullNewsApiUrl);
                 var newsCategoryList = res?.Data?.ToList();
                 return newsCategoryList;
             }
@@ -126,34 +129,190 @@ namespace Education.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task PostNews(NewsItemModel model)
+        public async Task AddNews(NewsItemModel model)
         {
-            var newsEndpoint = "News/Create";
-            var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
-
-            // Convert the news object to key-value pairs
-            var parameters = new List<KeyValuePair<string, string>>
+            try
             {
-                new KeyValuePair<string, string>("NewsCategoryId", model.NewsCategoryId.ToString()),
-                new KeyValuePair<string, string>("SchoolId", model.SchoolId.ToString()),
-                new KeyValuePair<string, string>("Name", model.Name.ToString()),
-                new KeyValuePair<string, string>("Description", model.Description.ToString()),
-                new KeyValuePair<string, string>("Status", model.Status.ToString()),
-                new KeyValuePair<string, string>("IsHot", model.IsHot.ToString()),
-                new KeyValuePair<string, string>("MetaUrl", model.MetaUrl.ToString()),
-                new KeyValuePair<string, string>("PublishedAt", model.PublishedAt.ToString("o")),
-            };
+                var data = new List<KeyValuePair<string, string>>
+                     {
+                        new KeyValuePair<string, string>("NewsCategoryId", model.NewsCategoryId?.ToString()),
+                        new KeyValuePair<string, string>("SchoolId", model.SchoolId?.ToString()),
+                        new KeyValuePair<string, string>("Name", model.Name.ToString()),
+                        new KeyValuePair<string, string>("Description", model.Description),
+                        new KeyValuePair<string, string>("Status", model.Status.ToString()),
+                        new KeyValuePair<string, string>("IsHot", model.IsHot.ToString()),
+                        new KeyValuePair<string, string>("MetaUrl", model.MetaUrl.ToString()),
+                        new KeyValuePair<string, string>("PublishedAt", model.PublishedAt.ToString("o")),
+                     };
 
-            await _apiService.PostAsync(fullNewsApiUrl, parameters);
+                var newsCategoryEndpoint = "/News/Create";
+                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
+
+                await _apiService.PostAsync(fullNewsApiUrl, data);
+
+                RedirectToAction("index", "news", new { area = "admin" });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
         }
 
-        public IActionResult Edit()
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            try
+            {
+                var idNews = id ?? 0;
+
+                var newsDetail = await GetDetailNews(idNews);
+
+                if (newsDetail == null)
+                {
+                    return RedirectToAction("index", "news", new { area = "admin" });
+                }
+
+                var schoolList = await GetAllSchool();
+                var newsCategoryList = await GetAllNewsCategory();
+                var schoolDetail = await GetDetailSchool(newsDetail.SchoolId ?? 0);
+                var newsCategoryDetail = await GetDetailNewsCategory(newsDetail.NewsCategoryId ?? 0);
+
+                if (schoolList == null || newsCategoryList == null || newsCategoryDetail == null || schoolDetail == null)
+                {
+                    return RedirectToAction("index", "news", new { area = "admin" });
+                }
+
+                //news detail
+                ViewBag.NewsDetail = newsDetail;
+
+                //droplist
+                ViewBag.SchoolList = new SelectList(schoolList, "Id", "Name", schoolDetail.Id);
+                ViewBag.NewsCategoryList = new SelectList(newsCategoryList, "Id", "Name", newsCategoryDetail.Id);
+
+                // Đặt giá trị mặc định cho thuộc tính mô hình
+                var modelState = ModelState;
+                modelState.Clear();
+                modelState.SetModelValue("Id", new ValueProviderResult(newsDetail?.Id.ToString() ?? "", CultureInfo.CurrentCulture));
+                modelState.SetModelValue("Name", new ValueProviderResult(newsDetail?.Name.ToString() ?? "", CultureInfo.CurrentCulture));
+                modelState.SetModelValue("Description", new ValueProviderResult(newsDetail?.Description.ToString() ?? "", CultureInfo.CurrentCulture));
+                modelState.SetModelValue("MetaUrl", new ValueProviderResult(newsDetail?.MetaUrl.ToString() ?? "", CultureInfo.CurrentCulture));
+                modelState.SetModelValue("NewsCategoryId", new ValueProviderResult(newsCategoryDetail?.Id.ToString() ?? "", CultureInfo.CurrentCulture));
+                modelState.SetModelValue("SchoolId", new ValueProviderResult(schoolDetail?.Id.ToString() ?? "", CultureInfo.CurrentCulture));
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error in Edit action: {Message}", ex.Message);
+                return RedirectToAction("Index", "Home", new { area = "admin" });
+            }
+        }
+
+        [HttpGet]
+        public async Task<NewsCategoryItemModel> GetDetailNewsCategory(int id)
+        {
+            try
+            {
+                var newsEndpoint = $"/NewsCategory/GetById?id={id}";
+                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
+
+                var res = await _apiService.GetAsync<NewsCategoryModel<NewsCategoryItemModel>>(fullNewsApiUrl);
+                return res.Data ?? new NewsCategoryItemModel();
+
+            }
+            catch (HttpRequestException e)
+            {
+                _logger.LogError("Error calling API: {Message}", e.Message);
+                throw new Exception("Error calling API: " + e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<SchoolItemModel> GetDetailSchool(int id)
+        {
+            try
+            {
+                var newsEndpoint = $"/School/GetById?id={id}";
+                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
+
+                var res = await _apiService.GetAsync<SchoolModel<SchoolItemModel>>(fullNewsApiUrl);
+                return res.Data ?? new SchoolItemModel();
+
+            }
+            catch (HttpRequestException e)
+            {
+                _logger.LogError("Error calling API: {Message}", e.Message);
+                throw new Exception("Error calling API: " + e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<NewsItemModel> GetDetailNews(int id)
+        {
+            try
+            {
+                var newsEndpoint = $"/News/GetById?id={id}";
+                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsEndpoint}";
+
+                var res = await _apiService.GetAsync<NewsModel<NewsItemModel>>(fullNewsApiUrl);
+                return res.Data ?? new NewsItemModel();
+            }
+            catch (HttpRequestException e)
+            {
+                _logger.LogError("Error calling API: {Message}", e.Message);
+                throw new Exception("Error calling API: " + e.Message);
+            }
+        }
+
+        [HttpPut]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditNews(NewsItemModel model)
+        {
+            try
+            {
+                var _httpClient = new HttpClient();
+                var content = new MultipartFormDataContent();
+
+                foreach (var pr in typeof(NewsItemModel).GetProperties())
+                {
+                    var value = pr.GetValue(model)?.ToString() ?? "";
+
+                    /*  if (pr.Name == "PublishedAt")
+                      {
+                          value = DateTime.Parse(value).ToString("MM/dd/yyyy");
+                      }*/
+                    content.Add(new StringContent(value), pr.Name);
+                }
+
+                var newsCategoryEndpoint = "/news/update";
+                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
+
+                var response = await _httpClient.PutAsync(fullNewsApiUrl, content);
+                await response.Content.ReadAsStringAsync();
+                return RedirectToAction("index", "news", new { area = "admin" });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View();
+            }
+        }
+
+        [HttpDelete]
+        public async Task DeleteNews(int id)
+        {
+            try
+            {
+                var newsCategoryEndpoint = $"News/Delete?id={id}";
+                var fullNewsApiUrl = $"{_apiService.DefautApiBaseUri}{newsCategoryEndpoint}";
+
+                await _apiService.DeleteAsync(fullNewsApiUrl);
+                RedirectToAction("index", "news", new { area = "admin" });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
         }
     }
 }
-
-
-
-

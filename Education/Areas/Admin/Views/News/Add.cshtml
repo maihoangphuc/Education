@@ -12,12 +12,12 @@
             <div class="row">
                 <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                     <h3 class="font-weight-bold">@ViewData["Title"]</h3>
-                    <h6 class="font-weight-normal mb-4"><span class="text-primary">Nhập nội dung bài đăng</span></h6>
+                    <h6 class="font-weight-normal mb-4"><span class="text-primary">Nhập nội dung bài</span></h6>
                 </div>
                 <div class="col-12 grid-margin">
                     <div class="card">
                         <div class="card-body">
-                            <form asp-area="Admin" asp-controller="News" asp-action="PostNews" method="POST" enctype="multipart/form-data">
+                            <form asp-area="admin" asp-controller="news" asp-action="addNews" method="post" enctype="multipart/form-data">
                                 @Html.AntiForgeryToken()
                                 <div class="row mt-4">
                                     <div class="col-md-6">
@@ -44,15 +44,15 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        @*  <div class="form-group">
-                                        <label>Ảnh</label>
-                                        <select class="form-control">
-                                        <option>Male</option>
-                                        <option>Female</option>
-                                        <option>Female</option>
-                                        <option>Female</option>
-                                        </select>
-                                        </div> *@
+                                        <div class="form-group">
+                                            <label>Ảnh</label>
+                                            <select class="form-control">
+                                                <option>Male</option>
+                                                <option>Female</option>
+                                                <option>Female</option>
+                                                <option>Female</option>
+                                            </select>
+                                        </div>
                                         <div class="form-group">
                                             <label asp-for="NewsCategoryId">Danh mục bài viết</label>
                                             <select asp-for="NewsCategoryId" asp-items="@(new SelectList(ViewBag.NewsCategoryList, "Id", "Name"))" class="form-control">
@@ -106,15 +106,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label asp-for="PublishedAt">PublishedAt</label>
-                                            <input type="hidden" asp-for="PublishedAt" value="@DateTime.Now.ToString()" />
-                                            <span asp-validation-for="PublishedAt" class="text-danger"></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Thêm các trường khác tương tự -->
+                                    <input type="hidden" asp-for="PublishedAt" value="@DateTime.Now.ToString()" />
                                 </div>
                                 <button type="submit" class="btn btn-primary">Gửi</button>
                             </form>

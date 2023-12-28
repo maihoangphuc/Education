@@ -23,43 +23,50 @@
             return await response.Content.ReadAsAsync<T>();
         }
 
-        public async Task<T> PostAsync<T>(string url, object data)
+        public async Task PostAsync(string url, object data)
         {
             var response = await _httpClient.PostAsJsonAsync(url, data);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsAsync<T>();
-        }
-
-
-        public async Task PostAsync(string url, List<KeyValuePair<string, string>> parameters)
-        {
-            var httpClient = new HttpClient();
-
-            var httpRequestMessage = new HttpRequestMessage();
-            httpRequestMessage.Method = HttpMethod.Post;
-
-            httpRequestMessage.RequestUri = new Uri(url);
-
-            var content = new FormUrlEncodedContent(parameters);
-            httpRequestMessage.Content = content;
-
-            // Thực hiện Post
-            var response = await httpClient.SendAsync(httpRequestMessage);
             await response.Content.ReadAsStringAsync();
         }
 
-
-        public async Task<T> PutAsync<T>(string url, object data)
+        public async Task PostAsync(string url, List<KeyValuePair<string, string>> data)
         {
-            var response = await _httpClient.PutAsJsonAsync(url, data);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsAsync<T>();
+            var httpRequestMessage = new HttpRequestMessage();
+            httpRequestMessage.Method = HttpMethod.Post;
+            httpRequestMessage.RequestUri = new Uri(url);
+
+            var content = new FormUrlEncodedContent(data);
+            httpRequestMessage.Content = content;
+
+            // Thực hiện Post
+            var response = await _httpClient.SendAsync(httpRequestMessage);
+            await response.Content.ReadAsStringAsync();
         }
 
-        public async Task DeleteAsync(string url)
+        public async Task PutAsync(string url, MultipartFormDataContent content)
         {
-            var response = await _httpClient.DeleteAsync(url);
-            response.EnsureSuccessStatusCode();
+            /*   var httpRequestMessage = new HttpRequestMessage();
+               httpRequestMessage.Method = HttpMethod.Post;
+               httpRequestMessage.Headers.Add("User-Agent", "Mozilla/5.0");
+               httpRequestMessage.RequestUri = new Uri(url);
+
+               httpRequestMessage.Content = content;
+
+               // Thực hiện Put
+               var response = await _httpClient.SendAsync(httpRequestMessage);
+               await response.Content.ReadAsStringAsync();*/
+
+            await _httpClient.PostAsync(url, content);
+        }
+
+        public Task DeleteAsync(string url)
+        {
+            _httpClient.BaseAddress = new Uri(url);
+
+            // Thực hiện Delete
+            var response = _httpClient.DeleteAsync(url);
+            return response;
         }
     }
 }

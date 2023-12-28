@@ -1,9 +1,118 @@
-﻿
+﻿@model Education.Models.NewsItemModel
+
 @{
     ViewData["Title"] = "Sửa tin tức";
     ViewData["Active"] = "2";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-md-12 grid-margin">
+            <div class="row">
+                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                    <h3 class="font-weight-bold">@ViewData["Title"]</h3>
+                    <h6 class="font-weight-normal mb-4"><span class="text-primary">Sửa nội dung bài</span></h6>
+                </div>
+                <div class="col-12 grid-margin">
+                    <div class="card">
+                        <div class="card-body">
+                            <form asp-area="admin" asp-controller="news" asp-action="editNews" method="put">
+                                @Html.AntiForgeryToken()
 
+                                <input type="hidden" asp-for="Id" />
+                                <div class="row mt-4">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="Name">Tên bài viết</label>
+                                            <input asp-for="Name" class="form-control" placeholder="Nhập tên bài viết">
+                                            <span asp-validation-for="Name" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="SchoolId">Trường học</label>
+                                            <select asp-for="SchoolId" asp-items="@(ViewBag.SchoolList)" class="form-control"></select>
+                                            <span asp-validation-for="SchoolId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="Description">Mô tả bài viết</label>
+                                            <textarea asp-for="Description" class="form-control" rows="8" placeholder="Nhập mô tả bài viết"></textarea>
+                                            <span asp-validation-for="Description" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                         <div class="form-group">
+                                        <label>Ảnh</label>
+                                        <select class="form-control">
+                                        <option>Male</option>
+                                        <option>Female</option>
+                                        <option>Female</option>
+                                        <option>Female</option>
+                                        </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="NewsCategoryId">Danh mục bài viết</label>
+                                            <select asp-for="NewsCategoryId" asp-items="@(ViewBag.NewsCategoryList)" class="form-control"></select>
+                                            <span asp-validation-for="NewsCategoryId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="Status">Trạng thái bài viết</label>
+                                            <div class="row col-md-8">
+                                                <div class="col col-auto form-check form-check-danger">
+                                                    <label class="form-check-label">
+                                                        <input type="radio" asp-for="Status" value="0" checked="@((int)ViewBag.NewsDetail.Status == 0)">
+                                                        Tắt
+                                                    </label>
+                                                </div>
+                                                <div class="col col-auto form-check form-check-success">
+                                                    <label class="form-check-label">
+                                                        <input type="radio" asp-for="Status" value="1" checked="@((int)ViewBag.NewsDetail.Status == 1)">
+                                                        Hoạt động
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="MetaUrl">Url bài viết</label>
+                                            <input asp-for="MetaUrl" class="form-control" value="@((string)ViewBag.NewsDetail.MetaUrl)" placeholder="Nhập theo định dạng: ten-bai-viet" />
+                                            <span asp-validation-for="MetaUrl" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="IsHot">Bài viết nổi bật</label>
+                                            <div class="row col-md-8">
+                                                <div class="col col-auto form-check form-check-danger">
+                                                    <label class="form-check-label">
+                                                        <input type="radio" asp-for="IsHot" value="false" checked="@((bool)ViewBag.NewsDetail.IsHot == false)">
+                                                        Không
+                                                    </label>
+                                                </div>
+                                                <div class="col col-auto form-check form-check-success">
+                                                    <label class="form-check-label">
+                                                        <input type="radio" asp-for="IsHot" value="true" checked="@((bool)ViewBag.NewsDetail.IsHot == true)">
+                                                        Có
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" asp-for="PublishedAt" value="@DateTime.Parse(DateTime.Now.ToString()).ToString("yyyy/MM/dd")" />
+                                    <!-- Thêm các trường khác tương tự -->
+                                </div>
+                                <button type="submit" class="btn btn-primary">Gửi</button>
+                            </form>
+                        </div>
+                    </div
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

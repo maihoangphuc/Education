@@ -1,4 +1,6 @@
-﻿namespace Education.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Education.Models
 {
     public class SchoolModel<T>
     {
@@ -7,6 +9,7 @@
 
     public class SchoolItemModel
     {
+        [Key]
         public int Id { get; set; }
         public int? AddressId { get; set; }
         public string Name { get; set; }

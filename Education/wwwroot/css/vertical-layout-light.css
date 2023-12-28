@@ -11880,7 +11880,7 @@ textarea.is-invalid.tt-hint {
     user-select: none;
     background-color: transparent;
     border: 1px solid transparent;
-    padding: 0.875rem 1.5rem;
+    padding: 12px;
     font-size: 0.875rem;
     line-height: 1;
     border-radius: 0.1875rem;

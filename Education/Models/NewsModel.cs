@@ -9,6 +9,7 @@ namespace Education.Models
 
     public class NewsItemModel
     {
+        [Key]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Trường SchoolId là bắt buộc.")]
@@ -17,11 +18,12 @@ namespace Education.Models
         [Required(ErrorMessage = "Trường NewsCategoryId là bắt buộc.")]
         public int? NewsCategoryId { get; set; }
 
-        [Required(ErrorMessage = "Trường Name là bắt buộc.")]
+        [Required(ErrorMessage = "Trường tên là bắt buộc.")]
         [StringLength(255, ErrorMessage = "Trường Name không được vượt quá 255 ký tự.")]
         public string Name { get; set; }
 
-        [StringLength(1000, ErrorMessage = "Trường Description không được vượt quá 1000 ký tự.")]
+        [Required(ErrorMessage = "Trường mô tả là bắt buộc.")]
+        [StringLength(1000, ErrorMessage = "Trường mô tả không được vượt quá 1000 ký tự.")]
         public string Description { get; set; }
 
         public bool IsHot { get; set; }
@@ -33,6 +35,7 @@ namespace Education.Models
 
         public ImageObjModel? ImageObj { get; set; }
 
+        [Required(ErrorMessage = "Trường datetime là bắt buộc.")]
         public DateTime PublishedAt { get; set; }
     }
 

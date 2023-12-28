@@ -1,12 +1,15 @@
-﻿namespace Education.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Education.Models
 {
     public class NewsCategoryModel<T>
     {
         public T? Data { get; set; }
     }
 
-    public class NewsItemCategoryModel
+    public class NewsCategoryItemModel
     {
+        [Key]
         public int Id { get; set; }
         public int? SchoolId { get; set; }
         public int? ParentId { get; set; }

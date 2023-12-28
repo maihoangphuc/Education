@@ -1,4 +1,6 @@
-﻿@using X.PagedList.Mvc.Core;
+﻿@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Mvc
 @model X.PagedList.IPagedList<Education.Models.NewsItemModel>
 
 @{
@@ -15,7 +17,6 @@
     </div>
 </div>
 <!-- End Breadcrumbs -->
-
 <!-- ======= News Section ======= -->
 <section id="news" class="news">
     <div class="container">
@@ -61,8 +62,8 @@
                     }
                 </div>
 
-                @if (Model != null && Model.Any())
-                {
+               @*  @if (Model != null && Model.Any())
+                { *@
                     <div class="container mt-4">
                         <div class="row">
                             <div class="col">
@@ -83,7 +84,7 @@
                             </div>
                         </div>
                     </div>
-                }
+              @*   } *@
             </div>
             <div class="col-lg-4">
                 <!-- Search Form -->
